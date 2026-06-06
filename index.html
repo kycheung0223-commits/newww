@@ -14,7 +14,7 @@
             --bright-gold: #fff0a3;
             --imperial-gold: #ffd700; 
             --text-main: #fcf8ee;
-            --jade-green: #3d6647; /* 新增：翡翠玉石底色 */
+            --jade-green: #3d6647; 
             
             --paper-texture: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0), repeating-linear-gradient(45deg, rgba(0,0,0,0.01) 1px, rgba(0,0,0,0.01) 1px, transparent 1px, transparent 3px);
         }
@@ -51,7 +51,7 @@
             z-index: 1;
         }
 
-        /* 👑 頂部 HUD 區域：全面融合翡翠玉石與金屬復古風格 */
+        /* 👑 頂部 HUD 區域 */
         .top-hud { 
             height: 85px;
             background: linear-gradient(to bottom, #2d1d12 0%, #150d06 100%);
@@ -63,35 +63,26 @@
         .hud-side { display: flex; gap: 12px; width: 380px; }
         .hud-center { text-align: center; flex: 1; position: relative; }
         
-        /* 宣政殿匾額 */
         .game-title { 
             font-size: 1.9rem; color: var(--bright-gold); letter-spacing: 14px; font-weight: bold;
             text-shadow: 3px 3px 4px #000, 0 0 10px var(--soft-gold); margin: 0; padding-left: 14px;
         }
         
-        /* 融合玉石能量條的屬性框 */
         .hud-box { 
             flex: 1; 
             background: linear-gradient(135deg, #24160c 0%, #120b06 100%); 
             padding: 4px 8px; 
             border: 2px solid var(--soft-gold); 
-            border-radius: 20px; /* 圓角化契合設計圖 */
+            border-radius: 20px; 
             box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
             position: relative;
             overflow: hidden;
         }
-        /* 如果有加載玉石條切圖，可以直接啟用此處背景 */
-        .hud-box.loaded-img {
-            background-image: url('hud_element.png');
-            background-size: 100% 100%;
-            border: none;
-        }
         
         .hud-label { font-size: 0.85rem; margin-bottom: 4px; display: flex; justify-content: space-between; color: #eeddc5; font-weight: bold; text-shadow: 1px 1px 1px #000; }
         
-        /* 模擬玉石槽內部的木質與金屬流光刻度 */
         .hud-bar { 
-            background: #2a180d; /* 木質內槽色 */
+            background: #2a180d; 
             height: 10px; 
             border: 1px solid #5c3a1a; 
             border-radius: 5px;
@@ -100,7 +91,6 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.9);
             position: relative;
         }
-        /* 刻度標記線 */
         .hud-bar::before {
             content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(255,255,255,0.2); z-index: 2;
         }
@@ -108,7 +98,7 @@
             height: 100%; 
             width: 50%; 
             border-radius: 4px;
-            background: linear-gradient(to right, #0ea5e9, #eab308); /* 藍金漸層流光 */
+            background: linear-gradient(to right, #0ea5e9, #eab308); 
             box-shadow: 0 0 6px var(--bright-gold);
             transition: width 0.6s cubic-bezier(0.1, 0.8, 0.1, 1); 
         }
@@ -138,7 +128,7 @@
             padding-right: 10px;
         }
 
-        /* 📜 聖旨下旨提示框 - 移至最上層，寬度優化不遮擋 */
+        /* 📜 聖旨下旨提示框 */
         .emperor-requirement-box {
             position: relative;
             margin-top: 10px;
@@ -149,7 +139,7 @@
             outline: 2px solid #3d2511;
             padding: 18px 20px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            z-index: 40; /* 確保在天子立繪前面，方便閱讀文字 */
+            z-index: 40; 
         }
         .emperor-requirement-box::before {
             content: "👑 天子下旨"; position: absolute; top: -12px; left: 15px;
@@ -159,15 +149,15 @@
         .req-title { font-size: 1.15rem; font-weight: bold; color: #4a1a05; margin-bottom: 8px; border-bottom: 1px solid rgba(74,26,5,0.2); padding-bottom: 4px; }
         .req-text { font-size: 1.05rem; line-height: 1.6; color: #2e1802; font-weight: bold; text-align: justify; }
 
-        /* 👑 核心修正：全新寫實風天子立繪容器（置於背景層，絕不擋字） */
+        /* 👑 天子實體圖片與剪影備援容器 */
         .emperor-live-container {
             position: absolute;
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 340px; /* 寬度完全契合精幹身形 */
+            width: 350px; 
             height: 380px;
-            z-index: 5; /* 關鍵：置於提示框與起居注後方 */
+            z-index: 5; 
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -175,6 +165,14 @@
             pointer-events: none;
         }
         
+        /* 備援天子剪影樣式：當圖片加載失敗時，會自動秀出這個霸氣的 CSS 寶座與剪影，不留白！ */
+        .emperor-live-container.fallback-active {
+            background: linear-gradient(to top, #4a0d0d 0%, transparent 100%);
+            clip-path: polygon(15% 100%, 15% 40%, 30% 20%, 70% 20%, 85% 40%, 85% 100%);
+            border-top: 3px solid var(--imperial-gold);
+            box-shadow: 0 0 30px rgba(255,215,0,0.2);
+        }
+
         .emperor-img-element {
             width: 100%;
             height: 100%;
@@ -187,7 +185,6 @@
             50% { transform: translateY(-6px); }
         }
         
-        /* 天子標籤正名，置於立繪正下方 */
         .emperor-name-badge {
             position: absolute;
             bottom: 20px;
@@ -206,13 +203,13 @@
             width: max-content;
         }
 
-        /* 📖 起居注御案 - 移至左下角最前方 */
+        /* 📖 起居注 */
         .chronicle-container-left {
             position: absolute; 
             bottom: 15px; 
             left: 15px; 
             width: 160px; 
-            z-index: 100; /* 確保點擊不受干擾 */
+            z-index: 100; 
         }
         .chronicle-anchor {
             background: linear-gradient(to bottom, #ebd197 0%, #a68442 100%); color: #1f1105;
@@ -264,7 +261,6 @@
 
         @keyframes advFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 
-        /* 點擊大臣觸發設計圖中的金光環繞（Sacred Glow）特技 */
         .advisor-slot.selected .advisor-silhouette {
             animation: none !important; 
             filter: drop-shadow(0 0 20px var(--imperial-gold)) brightness(1.25) !important; 
@@ -275,7 +271,6 @@
         }
         .advisor-silhouette:hover { filter: brightness(1.1) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); transform: translateY(-5px); }
 
-        /* 臣子純 CSS 預留基底（若皇後續生成大臣切圖，可用 <img> 替換此處） */
         .advisor-figure { position: absolute; bottom: 52px; width: 110px; height: 140px; z-index: 16; }
         .advisor-figure::before { content: ""; position: absolute; bottom: 0; width: 100%; height: 105px; clip-path: polygon(25% 0%, 75% 0%, 95% 30%, 100% 100%, 0% 100%, 5% 30%); }
         .advisor-figure::after { content: ""; position: absolute; bottom: 103px; left: 50%; transform: translateX(-50%); width: 45px; height: 32px; }
@@ -289,7 +284,6 @@
         .tg-censor .advisor-figure::before { background: linear-gradient(to top, #281240 0%, #0b0414 100%); border-top: 2px solid #9333ea; }
         .tg-censor .advisor-figure::after { background: #391b5c; clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); }
 
-        /* 大臣雕花木椅名牌 */
         .advisor-label { 
             background: linear-gradient(to bottom, #3a2312 0%, #1d1007 100%); border: 2px solid var(--soft-gold); padding: 5px 6px; text-align: center; width: 100%; box-shadow: 0 5px 12px rgba(0,0,0,0.9); z-index: 30; transition: all 0.2s; position: relative;
         }
@@ -298,14 +292,13 @@
 
         .advisor-shadow-floor { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 120px; height: 10px; background: rgba(0, 0, 0, 0.7); border-radius: 50%; filter: blur(3px); pointer-events: none; }
 
-        /* 📜 右側彈出的群臣奏摺大面板 */
+        /* 📜 大臣奏摺面板 */
         .proposal-scroll-popup { 
             position: absolute; top: 10px; left: 15px; right: 0; height: 200px; background: var(--paper-texture), linear-gradient(to bottom, #fffef9 0%, #f7f0dc 100%); color: #221100; padding: 18px 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: space-between; z-index: 150; border-left: 12px solid #e6dfcb; border-right: 12px solid #e6dfcb; border-top: 4px solid var(--soft-gold); border-bottom: 4px solid var(--soft-gold); outline: 2px solid #2d1d12;
         }
         .proposal-scroll-popup.show { display: flex; animation: scrollOpen 0.2s ease-out forwards; }
         .proposal-text { font-style: italic; font-weight: bold; font-size: 1.1rem; line-height: 1.5; color: #2b1704; text-align: justify; }
         
-        /* 硃砂紅御批批准按鈕 */
         .action-confirm-btn { 
             background: linear-gradient(to bottom, #b91c1c 0%, #6b0707 100%); color: #fff; border: 2px solid var(--imperial-gold); padding: 10px 0; font-size: 1.2rem; font-weight: bold; letter-spacing: 10px; cursor: pointer; box-shadow: 0 5px 10px rgba(0,0,0,0.5); border-radius: 4px; width: 100%; padding-left: 10px; margin-top: 5px;
         }
@@ -408,8 +401,8 @@
                     <div class="req-text" id="req-text">天下初定，百萬主力重兵仍握在開國功臣手中。如何收攏地方兵權引發朝堂明爭暗鬥...</div>
                 </div>
 
-                <div class="emperor-live-container">
-                    <img src="emperor.png" onerror="this.style.display='none';" class="emperor-img-element" alt="天子聖駕">
+                <div class="emperor-live-container" id="emp-container">
+                    <img src="emperor.png" onerror="handleEmpImgError(this);" class="emperor-img-element" alt="天子聖駕">
                     <div class="emperor-name-badge">天子</div>
                 </div>
 
@@ -438,6 +431,13 @@
     </div>
 
     <script>
+        // 🛡️ 護駕仙術：防禦圖片加載失敗
+        function handleEmpImgError(img) {
+            img.style.display = 'none'; // 隱藏破圖圖示
+            document.getElementById('emp-container').classList.add('fallback-active'); // 啟用備援皇家剪影
+            console.log("👑 [內廷通報]：GitHub Pages 暫未發現 emperor.png 圖片，已自動開啟天子金屬剪影護駕！");
+        }
+
         const DATA_EVENTS = [
             {
                 title: "⚔️ 天下初定 · 兵權分配與大軍編制",
