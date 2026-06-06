@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天命最高 · 聖駕臨朝 宣政殿</title>
+    <style>
+        :root {
+            /* 提取自設計圖的極致宮廷配色 */
+            --bg-dark: #0f0a06;
+            --stage-bg: #1c120c; 
+            --accent-gold: #e5b842;
+            --soft-gold: #a68442;
+            --bright-gold: #fff0a3;
+            --imperial-gold: #ffd700; 
+            --text-main: #fcf8ee;
+            --jade-green: #3d6647; /* 新增：翡翠玉石底色 */
+            
+            --paper-texture: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0), repeating-linear-gradient(45deg, rgba(0,0,0,0.01) 1px, rgba(0,0,0,0.01) 1px, transparent 1px, transparent 3px);
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            user-select: none; 
+            font-family: "DFKai-SB", "BiauKai", "標楷體", "KaiTi", serif;
+        }
+        
+        body { 
+            background-color: var(--bg-dark); 
+            background-image: radial-gradient(circle at 50% 30%, #2a1b0e 0%, #050302 90%);
+            color: var(--text-main); 
+            margin: 0; padding: 0; 
+            height: 100vh; 
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+        
+        .game-stage {
+            width: 1150px;
+            height: 680px;
+            background-color: var(--stage-bg);
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.4) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.8) 100%),
+                linear-gradient(to bottom, #150d06, #2d1d12);
+            border: 6px solid #1f130a;
+            outline: 2px solid var(--soft-gold);
+            box-shadow: 0 30px 70px rgba(0,0,0,1), inset 0 0 150px rgba(0,0,0,0.9);
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            z-index: 1;
+        }
+
+        /* 👑 頂部 HUD 區域：全面融合翡翠玉石與金屬復古風格 */
+        .top-hud { 
+            height: 85px;
+            background: linear-gradient(to bottom, #2d1d12 0%, #150d06 100%);
+            border-bottom: 3px solid var(--soft-gold); padding: 5px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 10px; position: relative; z-index: 500; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+        }
+        .hud-side { display: flex; gap: 12px; width: 380px; }
+        .hud-center { text-align: center; flex: 1; position: relative; }
+        
+        /* 宣政殿匾額 */
+        .game-title { 
+            font-size: 1.9rem; color: var(--bright-gold); letter-spacing: 14px; font-weight: bold;
+            text-shadow: 3px 3px 4px #000, 0 0 10px var(--soft-gold); margin: 0; padding-left: 14px;
+        }
+        
+        /* 融合玉石能量條的屬性框 */
+        .hud-box { 
+            flex: 1; 
+            background: linear-gradient(135deg, #24160c 0%, #120b06 100%); 
+            padding: 4px 8px; 
+            border: 2px solid var(--soft-gold); 
+            border-radius: 20px; /* 圓角化契合設計圖 */
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        /* 如果有加載玉石條切圖，可以直接啟用此處背景 */
+        .hud-box.loaded-img {
+            background-image: url('hud_element.png');
+            background-size: 100% 100%;
+            border: none;
+        }
+        
+        .hud-label { font-size: 0.85rem; margin-bottom: 4px; display: flex; justify-content: space-between; color: #eeddc5; font-weight: bold; text-shadow: 1px 1px 1px #000; }
+        
+        /* 模擬玉石槽內部的木質與金屬流光刻度 */
+        .hud-bar { 
+            background: #2a180d; /* 木質內槽色 */
+            height: 10px; 
+            border: 1px solid #5c3a1a; 
+            border-radius: 5px;
+            padding: 1px; 
+            overflow: hidden; 
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.9);
+            position: relative;
+        }
+        /* 刻度標記線 */
+        .hud-bar::before {
+            content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(255,255,255,0.2); z-index: 2;
+        }
+        .hud-fill { 
+            height: 100%; 
+            width: 50%; 
+            border-radius: 4px;
+            background: linear-gradient(to right, #0ea5e9, #eab308); /* 藍金漸層流光 */
+            box-shadow: 0 0 6px var(--bright-gold);
+            transition: width 0.6s cubic-bezier(0.1, 0.8, 0.1, 1); 
+        }
+        
+        .round-tag { 
+            background: linear-gradient(to bottom, #a68442 0%, #4a3311 100%); 
+            border: 1px solid var(--bright-gold); 
+            padding: 6px 14px; font-size: 0.95rem; color: #fff; font-weight: bold; border-radius: 4px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+        }
+
+        /* 🏛️ 朝堂大架構 */
+        .court-meeting-container {
+            display: flex;
+            width: 100%;
+            height: calc(100% - 95px);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ================= 左側：天子聖駕區 ================= */
+        .emperor-side {
+            width: 440px;
+            height: 100%;
+            position: relative;
+            border-right: 1px dashed rgba(166,132,66,0.2);
+            padding-right: 10px;
+        }
+
+        /* 📜 聖旨下旨提示框 - 移至最上層，寬度優化不遮擋 */
+        .emperor-requirement-box {
+            position: relative;
+            margin-top: 10px;
+            width: 100%;
+            min-height: 150px;
+            background: var(--paper-texture), linear-gradient(to bottom, #fff6d6 0%, #f7e2a3 100%);
+            border: 4px solid #b58938;
+            outline: 2px solid #3d2511;
+            padding: 18px 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 40; /* 確保在天子立繪前面，方便閱讀文字 */
+        }
+        .emperor-requirement-box::before {
+            content: "👑 天子下旨"; position: absolute; top: -12px; left: 15px;
+            background: #4a1a05; color: var(--bright-gold); font-size: 0.85rem;
+            padding: 2px 12px; font-weight: bold; border: 1px solid var(--soft-gold);
+        }
+        .req-title { font-size: 1.15rem; font-weight: bold; color: #4a1a05; margin-bottom: 8px; border-bottom: 1px solid rgba(74,26,5,0.2); padding-bottom: 4px; }
+        .req-text { font-size: 1.05rem; line-height: 1.6; color: #2e1802; font-weight: bold; text-align: justify; }
+
+        /* 👑 核心修正：全新寫實風天子立繪容器（置於背景層，絕不擋字） */
+        .emperor-live-container {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 340px; /* 寬度完全契合精幹身形 */
+            height: 380px;
+            z-index: 5; /* 關鍵：置於提示框與起居注後方 */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            pointer-events: none;
+        }
+        
+        .emperor-img-element {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.9));
+            animation: empFloating 6s infinite ease-in-out;
+        }
+        @keyframes empFloating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        
+        /* 天子標籤正名，置於立繪正下方 */
+        .emperor-name-badge {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, #5c1313 0%, #2b0404 100%);
+            border: 2px solid var(--imperial-gold);
+            padding: 4px 22px;
+            color: var(--bright-gold);
+            font-weight: bold;
+            font-size: 1.15rem;
+            letter-spacing: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.9);
+            z-index: 10;
+            text-shadow: 1px 1px 2px #000;
+            width: max-content;
+        }
+
+        /* 📖 起居注御案 - 移至左下角最前方 */
+        .chronicle-container-left {
+            position: absolute; 
+            bottom: 15px; 
+            left: 15px; 
+            width: 160px; 
+            z-index: 100; /* 確保點擊不受干擾 */
+        }
+        .chronicle-anchor {
+            background: linear-gradient(to bottom, #ebd197 0%, #a68442 100%); color: #1f1105;
+            padding: 8px 12px; font-weight: bold; border: 2px solid #fff; border-radius: 4px;
+            cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.7); font-size: 0.9rem;
+            width: 100%; text-align: center; display: block;
+            transition: transform 0.2s;
+        }
+        .chronicle-anchor:hover { transform: scale(1.05); }
+        
+        .chronicle-popup-panel {
+            width: 390px; 
+            height: 230px;
+            background: var(--paper-texture), #1d140c;
+            border: 3px solid var(--soft-gold); 
+            outline: 1px solid var(--bright-gold);
+            padding: 15px 20px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,1); 
+            display: none; 
+            flex-direction: column;
+            position: absolute;
+            bottom: 45px; 
+            left: 0px; 
+            z-index: 110; 
+        }
+        .chronicle-popup-panel.show { display: flex; animation: flashPop 0.15s ease-out; }
+        .chronicle-title { font-size: 1.1rem; font-weight: bold; color: var(--bright-gold); margin-bottom: 8px; border-bottom: 1px solid #4a3116; padding-bottom: 4px; }
+        .chronicle-content { font-size: 0.9rem; line-height: 1.7; color: #e5dec9; overflow-y: auto; flex: 1; text-align: justify; }
+
+        /* ================= 右側：群臣聽政區 ================= */
+        .advisors-side {
+            flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding-left: 15px; position: relative;
+        }
+
+        .three-advisors-floor {
+            width: 100%; height: 320px; display: flex; justify-content: space-around; align-items: flex-end; gap: 15px; z-index: 10; padding-bottom: 25px;
+        }
+
+        .advisor-slot {
+            width: 180px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative;
+        }
+
+        .advisor-silhouette { 
+            width: 145px; height: 230px; position: relative; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; transition: all 0.25s cubic-bezier(0.1, 0.8, 0.2, 1); filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8)) brightness(0.7); z-index: 15;
+        }
+        .advisor-slot:nth-child(1) .advisor-silhouette { animation: advFloat 4s infinite ease-in-out 0s; }
+        .advisor-slot:nth-child(2) .advisor-silhouette { animation: advFloat 4s infinite ease-in-out 0.6s; }
+        .advisor-slot:nth-child(3) .advisor-silhouette { animation: advFloat 4s infinite ease-in-out 1.2s; }
+
+        @keyframes advFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        /* 點擊大臣觸發設計圖中的金光環繞（Sacred Glow）特技 */
+        .advisor-slot.selected .advisor-silhouette {
+            animation: none !important; 
+            filter: drop-shadow(0 0 20px var(--imperial-gold)) brightness(1.25) !important; 
+            transform: translateY(-15px);
+        }
+        .advisor-slot.selected .advisor-label {
+            background: linear-gradient(to bottom, #8f2020 0%, #3d0505 100%) !important; border-color: var(--imperial-gold) !important;
+        }
+        .advisor-silhouette:hover { filter: brightness(1.1) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); transform: translateY(-5px); }
+
+        /* 臣子純 CSS 預留基底（若皇後續生成大臣切圖，可用 <img> 替換此處） */
+        .advisor-figure { position: absolute; bottom: 52px; width: 110px; height: 140px; z-index: 16; }
+        .advisor-figure::before { content: ""; position: absolute; bottom: 0; width: 100%; height: 105px; clip-path: polygon(25% 0%, 75% 0%, 95% 30%, 100% 100%, 0% 100%, 5% 30%); }
+        .advisor-figure::after { content: ""; position: absolute; bottom: 103px; left: 50%; transform: translateX(-50%); width: 45px; height: 32px; }
+
+        .tg-civil .advisor-figure::before { background: linear-gradient(to top, #112e14 0%, #040d05 100%); border-top: 2px solid #16a34a; }
+        .tg-civil .advisor-figure::after { background: #183d1c; clip-path: polygon(10% 20%, 90% 20%, 100% 100%, 0% 100%); }
+
+        .tg-military .advisor-figure::before { background: linear-gradient(to top, #44220b 0%, #1a0d03 100%); border-top: 2px solid #ea580c; }
+        .tg-military .advisor-figure::after { background: #5c300e; clip-path: polygon(50% 0%, 90% 50%, 80% 100%, 20% 100%, 10% 50%); }
+
+        .tg-censor .advisor-figure::before { background: linear-gradient(to top, #281240 0%, #0b0414 100%); border-top: 2px solid #9333ea; }
+        .tg-censor .advisor-figure::after { background: #391b5c; clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); }
+
+        /* 大臣雕花木椅名牌 */
+        .advisor-label { 
+            background: linear-gradient(to bottom, #3a2312 0%, #1d1007 100%); border: 2px solid var(--soft-gold); padding: 5px 6px; text-align: center; width: 100%; box-shadow: 0 5px 12px rgba(0,0,0,0.9); z-index: 30; transition: all 0.2s; position: relative;
+        }
+        .label-role { font-size: 0.75rem; color: #c5b49e; margin-bottom: 2px; }
+        .label-name { font-size: 1.1rem; color: var(--bright-gold); font-weight: bold; letter-spacing: 2px; }
+
+        .advisor-shadow-floor { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 120px; height: 10px; background: rgba(0, 0, 0, 0.7); border-radius: 50%; filter: blur(3px); pointer-events: none; }
+
+        /* 📜 右側彈出的群臣奏摺大面板 */
+        .proposal-scroll-popup { 
+            position: absolute; top: 10px; left: 15px; right: 0; height: 200px; background: var(--paper-texture), linear-gradient(to bottom, #fffef9 0%, #f7f0dc 100%); color: #221100; padding: 18px 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: space-between; z-index: 150; border-left: 12px solid #e6dfcb; border-right: 12px solid #e6dfcb; border-top: 4px solid var(--soft-gold); border-bottom: 4px solid var(--soft-gold); outline: 2px solid #2d1d12;
+        }
+        .proposal-scroll-popup.show { display: flex; animation: scrollOpen 0.2s ease-out forwards; }
+        .proposal-text { font-style: italic; font-weight: bold; font-size: 1.1rem; line-height: 1.5; color: #2b1704; text-align: justify; }
+        
+        /* 硃砂紅御批批准按鈕 */
+        .action-confirm-btn { 
+            background: linear-gradient(to bottom, #b91c1c 0%, #6b0707 100%); color: #fff; border: 2px solid var(--imperial-gold); padding: 10px 0; font-size: 1.2rem; font-weight: bold; letter-spacing: 10px; cursor: pointer; box-shadow: 0 5px 10px rgba(0,0,0,0.5); border-radius: 4px; width: 100%; padding-left: 10px; margin-top: 5px;
+        }
+        .action-confirm-btn:hover { filter: brightness(1.15); }
+        
+        .seal-stamp { 
+            position: absolute; top: 5px; right: 25px; width: 80px; height: 80px; border: 4px double #b91c1c; color: #b91c1c; font-size: 1.3rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transform: rotate(-12deg); opacity: 0; pointer-events: none; z-index: 2;
+        }
+
+        /* 📜 「天下邸報」過場結算面板 */
+        .transition-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(8, 4, 2, 0.9); z-index: 600; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease-out;
+        }
+        .transition-overlay.show { display: flex; opacity: 1; }
+        .report-board {
+            width: 660px; background: var(--paper-texture), #fdfaf2; border: 8px double #a68442; padding: 30px; color: #22150c; box-shadow: 0 25px 60px rgba(0,0,0,0.95); text-align: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        .transition-overlay.show .report-board { transform: scale(1); }
+        .report-header { font-size: 1.6rem; font-weight: bold; color: #851c1c; border-bottom: 2px dashed #a68442; padding-bottom: 8px; margin-bottom: 15px; letter-spacing: 4px; }
+        .report-result-text { font-size: 1.15rem; line-height: 1.7; text-align: justify; font-weight: bold; margin-bottom: 25px; color: #332012; text-indent: 2em; }
+        .stat-changes-grid { display: flex; justify-content: space-around; background: rgba(166, 132, 66, 0.1); padding: 12px 5px; border: 1px solid #c9b080; margin-bottom: 25px; }
+        .change-item { font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .change-item.plus { color: #b91c1c; } .change-item.minus { color: #16a34a; } 
+        .next-turn-btn { background: linear-gradient(to bottom, #851c1c 0%, #450707 100%); color: #fffdf0; border: 2px solid var(--imperial-gold); padding: 10px 45px; font-size: 1.2rem; font-weight: bold; letter-spacing: 6px; cursor: pointer; box-shadow: 0 5px 12px rgba(0,0,0,0.6); padding-left: 51px; }
+
+        .flash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 400; opacity: 0; pointer-events: none; }
+        .flash-overlay.active { opacity: 0.3; transition: opacity 0.04s ease-out; }
+
+        @keyframes scrollOpen { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes sealPlunge { 0% { transform: rotate(-12deg) scale(2); opacity: 0; } 100% { transform: rotate(-12deg) scale(0.7); opacity: 0.8; } }
+        @keyframes flashPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* 🎮 載入幕 */
+        .loading-screen {
+            position: absolute; top:0; left:0; width:100%; height:100%; background: #0c0805; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 3px solid var(--soft-gold);
+        }
+        .loading-title { font-size: 3rem; font-weight: 900; color: var(--bright-gold); letter-spacing: 10px; text-shadow: 3px 3px 0 #000; margin-bottom: 30px; }
+        .loading-bar-container { width: 380px; height: 12px; background: #17100a; border: 1px solid var(--soft-gold); padding: 2px; margin-bottom: 15px; }
+        .loading-bar-fill { width: 0%; height: 100%; background: linear-gradient(to right, #a68442, #ffd700); }
+        .loading-text { font-size: 0.95rem; color: var(--soft-gold); }
+        .start-btn { display: none; background: linear-gradient(to bottom, #ffd700 0%, #a68442 100%); color: #100600; border: 1.5px solid #fff; padding: 10px 60px; font-size: 1.6rem; font-weight: 900; cursor: pointer; letter-spacing: 12px; padding-left: 72px; }
+    </style>
+</head>
+<body onclick="closeProposal()">
+
+    <div class="game-stage" id="main-stage">
+        <div class="loading-screen" id="loading-screen" onclick="event.stopPropagation()">
+            <div class="loading-title">天命最高 · 聖駕臨朝</div>
+            <div class="loading-bar-container" id="bar-hide">
+                <div class="loading-bar-fill" id="load-fill"></div>
+            </div>
+            <div class="loading-text" id="load-text">內廷總管正在鋪設翡翠御案、召百官上朝... 0%</div>
+            <button class="start-btn" id="start-btn" onclick="startGame()">登基臨朝</button>
+        </div>
+
+        <div class="flash-overlay" id="flash-mask"></div>
+
+        <div class="transition-overlay" id="turn-report-overlay" onclick="event.stopPropagation()">
+            <div class="report-board">
+                <div class="report-header" id="report-title">大華元年 · 聖旨下達天下</div>
+                <div class="report-result-text" id="report-body">交代選項的最終結果...</div>
+                <div class="stat-changes-grid" id="report-stats-box"></div>
+                <button class="next-turn-btn" onclick="confirmReportAndNextTurn()">百官退朝</button>
+            </div>
+        </div>
+
+        <div class="top-hud" onclick="event.stopPropagation()">
+            <div class="hud-side">
+                <div class="hud-box">
+                    <div class="hud-label">🏛️ 政治 <span id="v-politics">50</span></div>
+                    <div class="hud-bar"><div id="b-politics" class="hud-fill"></div></div>
+                </div>
+                <div class="hud-box">
+                    <div class="hud-label">💰 經濟 <span id="v-economy">50</span></div>
+                    <div class="hud-bar"><div id="b-economy" class="hud-fill"></div></div>
+                </div>
+            </div>
+            <div class="hud-center">
+                <div class="game-title">宣政殿</div>
+            </div>
+            <div class="hud-side" style="justify-content: flex-end;">
+                <div class="hud-box">
+                    <div class="hud-label">⚔️ 國防 <span id="v-defense">50</span></div>
+                    <div class="hud-bar"><div id="b-defense" class="hud-fill"></div></div>
+                </div>
+                <div class="hud-box">
+                    <div class="hud-label">📜 文化 <span id="v-culture">50</span></div>
+                    <div class="hud-bar"><div id="b-culture" class="hud-fill"></div></div>
+                </div>
+                <div class="round-tag" id="round-indicator">大華元年</div>
+            </div>
+        </div>
+
+        <div class="court-meeting-container">
+            
+            <div class="emperor-side" onclick="event.stopPropagation()">
+                <div class="emperor-requirement-box">
+                    <div class="req-title" id="req-title">正在審閱奏摺...</div>
+                    <div class="req-text" id="req-text">天下初定，百萬主力重兵仍握在開國功臣手中。如何收攏地方兵權引發朝堂明爭暗鬥...</div>
+                </div>
+
+                <div class="emperor-live-container">
+                    <img src="emperor.png" onerror="this.style.display='none';" class="emperor-img-element" alt="天子聖駕">
+                    <div class="emperor-name-badge">天子</div>
+                </div>
+
+                <div class="chronicle-container-left">
+                    <button class="chronicle-anchor" onclick="toggleChronicle(event)">📖 起居注御案</button>
+                    <div class="chronicle-popup-panel" id="chronicle-panel">
+                        <div class="chronicle-title">🖋️ 君王起居注</div>
+                        <div class="chronicle-content" id="chronicle-log">
+                            《大華起居注》置於御案。此番重構全面融入了翡翠玉石 HUD 與寫實天子龍椅立繪。優化了全視角層級，聖旨大框與起居注立於最前，天子聖駕穩坐於後。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advisors-side" onclick="event.stopPropagation()">
+                <div class="proposal-scroll-popup" id="scroll-popup">
+                    <div class="proposal-text" id="p-quote">請選擇一位大臣查閱其奏摺策略...</div>
+                    <button class="action-confirm-btn" id="p-submit">批准（天子御批）</button>
+                    <div class="seal-stamp" id="seal-stamp">御批</div>
+                </div>
+
+                <div class="three-advisors-floor" id="advisors-floor"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const DATA_EVENTS = [
+            {
+                title: "⚔️ 天下初定 · 兵權分配與大軍編制",
+                desc: "天下初定，百萬主力重兵仍握在開國功臣手中。如何收攏地方兵權引發朝堂明爭暗鬥，名臣與權奸各執一詞，請點擊下方大臣查閱奏摺並裁決。",
+                options: [
+                    { type: "military", quote: "【大將軍 岳飛 奏】：萬萬不可自毀長城！北方外夷未軛，此時收權定會動振軍心。臣甲請陛下下設立大都督府，統一編制天下兵馬，加緊操練！", effects: { politics: -5, economy: -10, defense: 25, culture: -5 }, summary: "天子准大將軍所奏，設立大都督府總領三軍。九邊守軍將士士氣大振，防禦工事極速鞏固。然而軍權過度集中引發文官集團疑慮，大量軍費開支也加重了財政負擔。" },
+                    { type: "civil", quote: "【內閣首輔 張居正 奏】：實施條鞭，清丈田畝！應將各省兵馬復歸文官巡撫節制，削減冗兵，精簡軍費，將資金悉數投入墾荒與水利，方為正道！", effects: { politics: 15, economy: 20, defense: -10, culture: 10 }, summary: "聖意恩准首輔之策，文臣開始節制地方兵馬，大舉推行清丈田畝。賦稅歸公，國庫在短時間內迅速充盈。但因削減冗兵，邊疆部分要塞防務出現空虛。" },
+                    { type: "censor", quote: "【諫議大夫 魏徵 奏】：天子垂拱，依法制軍！臣請依前朝舊制，嚴格執行『兵將分離』之法。調兵權歸兵部，統兵權歸武將，互相牽制，以杜絕擁兵自重之患！", effects: { politics: 20, economy: -5, defense: 5, culture: 10 }, summary: "天子御批依法制軍，徹底確立了兵部與將領互相牽制的法統，朝堂政治體制更加清明穩固。然而，複雜的調兵程序在一定程度上降低了軍隊的應變速度。" }
+                ]
+            }
+        ];
+
+        const officials = {
+            civil: { role: "內閣首輔", name: "張居正", style: "tg-civil" },
+            military: { role: "大將軍", name: "岳飛", style: "tg-military" },
+            censor: { role: "諫議大夫", name: "魏徵", style: "tg-censor" }
+        };
+
+        let stats = { politics: 50, economy: 50, defense: 50, culture: 50 };
+        let round = 1; let selectedEffect = null; let selectedSummary = ""; let currentOfficerName = "";
+
+        window.onload = function() {
+            let fill = document.getElementById("load-fill"); 
+            let text = document.getElementById("load-text"); 
+            let pct = 0;
+            let interval = setInterval(() => {
+                pct += Math.floor(Math.random() * 15) + 5;
+                if(pct >= 100) {
+                    pct = 100; clearInterval(interval);
+                    document.getElementById("bar-hide").style.display = "none"; 
+                    text.style.display = "none";
+                    document.getElementById("start-btn").style.display = "inline-block";
+                }
+                fill.style.width = pct + "%"; 
+                text.innerText = `內廷總管正在鋪設翡翠御案、召百官上朝... ${pct}%`;
+            }, 30);
+        };
+
+        function startGame() {
+            document.getElementById("loading-screen").style.display = "none";
+            renderScenario();
+        }
+
+        function getImperialYear(r) { return r === 1 ? "大華元年" : `大華${r}年`; }
+
+        function updateHUD() {
+            document.getElementById("round-indicator").innerText = getImperialYear(round);
+            ["politics", "economy", "defense", "culture"].forEach(s => {
+                stats[s] = Math.min(100, Math.max(0, stats[s]));
+                document.getElementById(`v-${s}`).innerText = stats[s];
+                document.getElementById(`b-${s}`).style.width = stats[s] + '%';
+            });
+        }
+
+        function toggleChronicle(e) { e.stopPropagation(); document.getElementById("chronicle-panel").classList.toggle("show"); }
+
+        function closeProposal() {
+            const popup = document.getElementById("scroll-popup");
+            if (popup) { popup.style.display = "none"; popup.classList.remove("show"); }
+            document.querySelectorAll('.advisor-slot').forEach(c => c.classList.remove('selected'));
+        }
+
+        function checkGameStatus() {
+            if (stats.politics <= 0) return triggerEnding("💀 權臣篡位 · 天命崩解", "政治清明歸零。朝堂權臣發動政變，社稷易主。");
+            if (stats.economy <= 0) return triggerEnding("💀 國庫空虛 · 流寇破城", "經濟生產歸零。財政徹底破產，流寇攻破京師。");
+            if (stats.defense <= 0) return triggerEnding("💀 神州淪陷 · 靖康之恥", "國防軍武歸零。外敵鐵騎長驅直入宣政殿。");
+            let total = stats.politics + stats.economy + stats.defense + stats.culture;
+            if (total >= 320) return triggerEnding("🏆 萬世明君 · 天朝上國", `萬歲！帝國總國力（${total}）登臨天朝上國之境！`);
+            return false;
+        }
+
+        function renderScenario() {
+            updateHUD();
+            if (checkGameStatus()) return;
+
+            let current = DATA_EVENTS[Math.floor(Math.random() * DATA_EVENTS.length)];
+            document.getElementById("req-title").innerText = current.title;
+            document.getElementById("req-text").innerText = current.desc;
+
+            const floor = document.getElementById("advisors-floor");
+            floor.innerHTML = ""; 
+            const popup = document.getElementById("scroll-popup");
+
+            current.options.forEach(item => {
+                const config = officials[item.type];
+                if (!config) return;
+
+                const slot = document.createElement("div");
+                slot.className = "advisor-slot";
+                slot.innerHTML = `
+                    <div class="advisor-silhouette ${config.style}">
+                        <div class="advisor-figure"></div>
+                        <div class="advisor-label">
+                            <div class="label-role">${config.role}</div>
+                            <div class="label-name">${config.name}</div>
+                        </div>
+                    </div>
+                    <div class="advisor-shadow-floor"></div>
+                `;
+                
+                slot.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.advisor-slot').forEach(c => c.classList.remove('selected'));
+                    slot.classList.add('selected');
+
+                    popup.style.display = "flex";
+                    popup.classList.add("show");
+
+                    document.getElementById("p-quote").innerText = item.quote;
+                    document.getElementById("seal-stamp").style.animation = "none";
+                    
+                    selectedEffect = item.effects;
+                    selectedSummary = item.summary;
+                    currentOfficerName = config.name;
+                };
+                floor.appendChild(slot);
+            });
+
+            document.getElementById("p-submit").onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById("seal-stamp").style.animation = "sealPlunge 0.12s ease-out forwards";
+                setTimeout(() => { showTurnReport(); }, 250);
+            };
+        }
+
+        function showTurnReport() {
+            const overlay = document.getElementById("turn-report-overlay");
+            document.getElementById("report-title").innerText = `${getImperialYear(round)} · 【${currentOfficerName}】策印天下`;
+            document.getElementById("report-body").innerHTML = selectedSummary;
+
+            const statsBox = document.getElementById("report-stats-box");
+            statsBox.innerHTML = "";
+            const keyMap = { politics: "🏛️ 政治", economy: "💰 經濟", defense: "⚔️ 國防", culture: "📜 文化" };
+            
+            Object.keys(selectedEffect).forEach(key => {
+                let val = selectedEffect[key];
+                if (val === 0) return;
+                const div = document.createElement("div");
+                div.className = val > 0 ? "change-item plus" : "change-item minus";
+                div.innerHTML = `${keyMap[key]} ${val > 0 ? '+' : ''}${val}`;
+                statsBox.appendChild(div);
+            });
+
+            document.getElementById("scroll-popup").style.display = "none";
+            overlay.style.display = "flex";
+            setTimeout(() => { overlay.classList.add("show"); }, 10);
+        }
+
+        function confirmReportAndNextTurn() {
+            const overlay = document.getElementById("turn-report-overlay");
+            const mask = document.getElementById("flash-mask"); 
+            mask.classList.add("active");
+            overlay.classList.remove("show");
+            
+            setTimeout(() => {
+                overlay.style.display = "none";
+                stats.politics += selectedEffect.politics;
+                stats.economy += selectedEffect.economy;
+                stats.defense += selectedEffect.defense;
+                stats.culture += selectedEffect.culture || 0;
+
+                round++; 
+                renderScenario(); 
+                mask.classList.remove("active");
+            }, 150);
+        }
+
+        function triggerEnding(title, text) {
+            document.getElementById("main-stage").innerHTML = `<div style="text-align:center; padding-top: 140px; width:750px; margin:0 auto;" onclick="event.stopPropagation()">
+                <h2 style="color:var(--bright-gold); font-size:2.4rem; margin-bottom:20px;">${title}</h2>
+                <p style="line-height:1.8; color:#ebd197; background: #1a0f07; padding:30px; border:3px solid var(--soft-gold); text-align:justify; font-size:1.2rem;">${text}</p>
+                <button onclick="location.reload()" style="background:linear-gradient(to bottom, #ffd700 0%, #a68442 100%); border:1px solid #fff; padding:12px 45px; font-weight:bold; font-size:1.15rem; cursor:pointer; margin-top:25px;">重掌天命 再次臨朝</button>
+            </div>`;
+            return true;
+        }
+    </script>
+</body>
+</html>
